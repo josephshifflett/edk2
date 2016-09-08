@@ -2,6 +2,7 @@
 SMM MP service implementation
 
 Copyright (c) 2009 - 2016, Intel Corporation. All rights reserved.<BR>
+(C) Copyright 2016 Hewlett Packard Enterprise Development LP<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -1023,7 +1024,6 @@ SmiRendezvous (
   UINTN                          Index;
   UINTN                          Cr2;
   BOOLEAN                        XdDisableFlag;
-  MSR_IA32_MISC_ENABLE_REGISTER  MiscEnableMsr;
 
   //
   // Save Cr2 because Page Fault exception in SMM may override its value
@@ -1087,12 +1087,7 @@ SmiRendezvous (
     //
     XdDisableFlag = FALSE;
     if (mXdSupported) {
-      MiscEnableMsr.Uint64 = AsmReadMsr64 (MSR_IA32_MISC_ENABLE);
-      if (MiscEnableMsr.Bits.XD == 1) {
-        XdDisableFlag = TRUE;
-        MiscEnableMsr.Bits.XD = 0;
-        AsmWriteMsr64 (MSR_IA32_MISC_ENABLE, MiscEnableMsr.Uint64);
-      }
+      XdDisableFlag = SmmCpuFeaturesCheckAndEnableXdSupport ();
       ActivateXd ();
     }
 
@@ -1182,9 +1177,7 @@ SmiRendezvous (
     // Restore XD
     //
     if (XdDisableFlag) {
-      MiscEnableMsr.Uint64 = AsmReadMsr64 (MSR_IA32_MISC_ENABLE);
-      MiscEnableMsr.Bits.XD = 1;
-      AsmWriteMsr64 (MSR_IA32_MISC_ENABLE, MiscEnableMsr.Uint64);
+      SmmCpuFeaturesDisableXdSupport ();
     }
   }
 

@@ -2,6 +2,7 @@
 Enable SMM profile.
 
 Copyright (c) 2012 - 2016, Intel Corporation. All rights reserved.<BR>
+(C) Copyright 2016 Hewlett Packard Enterprise Development LP<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -933,7 +934,6 @@ CheckFeatureSupported (
 {
   UINT32                         RegEax;
   UINT32                         RegEdx;
-  MSR_IA32_MISC_ENABLE_REGISTER  MiscEnableMsr;
 
   if (mXdSupported) {
     AsmCpuid (CPUID_EXTENDED_FUNCTION, &RegEax, NULL, NULL, NULL);
@@ -956,21 +956,7 @@ CheckFeatureSupported (
   if (mBtsSupported) {
     AsmCpuid (CPUID_VERSION_INFO, NULL, NULL, NULL, &RegEdx);
     if ((RegEdx & CPUID1_EDX_BTS_AVAILABLE) != 0) {
-      //
-      // Per IA32 manuals:
-      // When CPUID.1:EDX[21] is set, the following BTS facilities are available:
-      // 1. The BTS_UNAVAILABLE flag in the IA32_MISC_ENABLE MSR indicates the
-      //    availability of the BTS facilities, including the ability to set the BTS and
-      //    BTINT bits in the MSR_DEBUGCTLA MSR.
-      // 2. The IA32_DS_AREA MSR can be programmed to point to the DS save area.
-      //
-      MiscEnableMsr.Uint64 = AsmReadMsr64 (MSR_IA32_MISC_ENABLE);
-      if (MiscEnableMsr.Bits.BTS == 1) {
-        //
-        // BTS facilities is not supported if MSR_IA32_MISC_ENABLE.BTS bit is set.
-        //
-        mBtsSupported = FALSE;
-      }
+      mBtsSupported = SmmCpuFeaturesConfirmBranchTraceStorageSupport ();
     }
   }
 }
