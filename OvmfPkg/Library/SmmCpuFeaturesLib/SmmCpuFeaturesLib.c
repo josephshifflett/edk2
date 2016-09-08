@@ -2,6 +2,7 @@
 The CPU specific programming for PiSmmCpuDxeSmm module.
 
 Copyright (c) 2010 - 2015, Intel Corporation. All rights reserved.<BR>
+(C) Copyright 2016 Hewlett Packard Enterprise Development LP<BR>
 This program and the accompanying materials
 are licensed and made available under the terms and conditions of the BSD License
 which accompanies this distribution.  The full text of the license may be found at
@@ -832,3 +833,46 @@ SmmCpuFeaturesAllocatePageTableMemory (
   return NULL;
 }
 
+/**
+  This API provides a method to determine if XD/NX support has been forced off in
+  the non-SMM execution environment.  It will enable XD/NX support while in SMM
+
+  @retval TRUE   XD/NX was disabled when runningn in the non-SMM execution environment
+  @retval FALSE  XD/NX was enabled when runningn in the non-SMM execution environment
+
+**/
+BOOLEAN
+EFIAPI
+SmmCpuFeaturesCheckAndEnableXdSupport (
+  VOID
+  )
+{
+  return FALSE;
+}
+
+/**
+  This API provides a method to disable XD/NX support before exiting SMM
+**/
+VOID
+EFIAPI
+SmmCpuFeaturesDisableXdSupport (
+  VOID
+  )
+{
+}
+
+/**
+  This API determines if Branch Trace Storage Support is currently available
+
+  @retval TRUE   BTS is available
+  @retval FALSE  BTS is disabled
+
+**/
+BOOLEAN
+EFIAPI
+SmmCpuFeaturesConfirmBranchTraceStorageSupport (
+  VOID
+  )
+{
+  return FALSE;
+}
